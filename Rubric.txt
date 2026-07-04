@@ -1,0 +1,114 @@
+Use this project rubric to understand and assess the project criteria.
+
+Database Setup and Knowledge Base Preparation
+Criteria	Submission Requirements
+Set up the database infrastructure
+
+Successfully run the database management notebook to initialize the databases
+Database contains the required tables (EnergyUsage, SolarGeneration)
+Set up the knowledge base infrastructure
+
+Successfully set up vector DB and populate the knowledge base with comprehensive energy-saving articles.
+Tools
+Criteria	Submission Requirements
+External data
+
+You have many tools already available to you in tools.py , your task is defining following two tools:
+
+get_weather_forecast
+get_electricity_prices
+You can mock the data either by dinamically creating weights and multiplying by base values inside the tool or by filling a inserting into the database in advance.
+
+Optionally you can use a real external API, but try to find free resources.
+
+Internal tips
+
+The third tool you have to define is the search_energy_tips tool using a vector database like chroma:
+
+Initialize vector store if it doesn't exist
+Load and Split documents if vector store doesn't exist
+Else load existing vector store
+Search for relevant documents
+Return a results dict
+Agent Architecture with LangGraph
+Criteria	Submission Requirements
+Agent definition
+
+Inside agent.py, you should define
+
+LLM
+Graph (Schema, Nodes and Edges)
+Make sure your Agent comply with the contract:
+
+Agent class constructor accepting at least instructions and model
+invoke method accepting at least question and context
+Agent Instructions
+
+Inside 03_run_and_evaluate.ipynb , you should craft ECOHOME_SYSTEM_PROMPT in order to instruct it to perform correctly and pass it to:
+
+ecohome_agent = Agent(
+    instructions=ECOHOME_SYSTEM_PROMPT,
+)
+Make sure your prompt includes:
+
+Who the agent is and its role
+What it should do and the steps
+Key capabilities
+Instructions for the recommendations piece
+Example questions
+Integration and Testing
+Criteria	Submission Requirements
+Test cases
+
+Inside 03_run_and_evaluate.ipynb , define comprehensive test cases for the Energy Advisor. Create at least 10 test cases covering different scenarios. Examples:
+
+EV charging optimization
+Thermostat settings
+Appliance scheduling
+Solar power maximization
+Cost savings calculations
+Demonstrate end-to-end energy optimization workflow with proper evaluation
+
+Demonstrate a complete end-to-end workflow for processing energy optimization requests.
+System can process energy optimization questions from initial query to final recommendation
+Agent response includes data retrieval, analysis, tool usage, and recommendation generation
+Demonstrates the complete flow with sample energy optimization scenarios
+System logs agent decisions and tool usage for transparency in test_results variable
+Evaluation and Performance
+Criteria	Submission Requirements
+Implement evaluation of the agent response
+
+Based on question, final response and expected response, implement metrics inside evaluate_response() function to capture at least:
+
+ACCURACY
+RELEVANCE
+COMPLETENESS
+USEFULNESS
+It should also provide comprehensive feedbacks
+
+Implement evaluation of tool usage
+
+Based on messages_list and expected_tools, implement metrics inside evaluate_tool_usage() function to capture at least:
+
+Tool Appropriateness: Were the right tools selected for the task?
+Tool Completeness: Were all necessary tools used?
+It should also provide comprehensive feedbacks.
+
+Evaluation Report
+
+Based on the execution and metrics, generate a comprehensive evaluation report inside generate_evaluation_report() function
+
+Calculate overall scores and metrics
+Identify strengths and weaknesses
+Provide recommendations for improvement
+The report must have a proper structure and be displayed using another function.
+
+Suggestions to Make Your Project Stand Out
+Visualization and Reporting: Add data visualization capabilities to show energy usage patterns, savings projections, and optimization recommendations in charts and graphs.
+
+User Personalization: Add user preference learning and personalized optimization strategies based on individual usage patterns and preferences.
+
+Integration with External APIs: Connect with real weather APIs, electricity pricing APIs, and smart home device APIs for live data integration.
+
+Advanced RAG Techniques: Implement more sophisticated RAG techniques like hybrid search, re-ranking, or multi-step reasoning for better knowledge retrieval.
+Machine Learning Integration: Add machine learning models to predict energy usage patterns and optimize recommendations based on historical data and user behavior.

@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+/*
+  EcoHome design tokens — "daylight grid"
+  Paper background, deep pine primary, one solar-amber accent.
+  Registered with @theme so they become Tailwind utilities
+  (bg-paper, text-pine, border-mist, etc.).
+*/
+@theme {
+  --color-paper: #faf8f2;
+  --color-ink: #17251e;
+  --color-pine: #1e5b45;
+  --color-pine-deep: #143d2f;
+  --color-solar: #f5a524;
+  --color-mist: #e6e2d6;
+  --color-meter: #2fa37c;
+  --color-fault: #c2483a;
+
+  --font-display: var(--font-space-grotesk);
+  --font-body: var(--font-plex-sans);
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+/* Visible keyboard focus everywhere, in the accent color */
+:focus-visible {
+  outline: 2px solid var(--color-solar);
+  outline-offset: 2px;
+}
+
+/* Typing indicator: three dots pulsing in sequence */
+.typing-dot {
+  animation: typing-pulse 1.2s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing-pulse {
+  0%, 60%, 100% { opacity: 0.25; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-3px); }
+}
+
+/* Status pill dot: gentle pulse while the agent is waking */
+.status-waking {
+  animation: status-pulse 1.4s ease-in-out infinite;
+}
+@keyframes status-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typing-dot, .status-waking { animation: none; }
+}

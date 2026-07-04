@@ -1,0 +1,77 @@
+/**
+ * API client — the ONLY file that knows how to talk to the backend.
+ *
+ * The backend URL comes from an environment variable so the same code works
+ * locally (http://localhost:8000) and in production (your Render URL) without
+ * any code change — you just set NEXT_PUBLIC_API_URL per environment.
+ */
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
+export interface AgentReply {
+  answer: string;
+  toolsUsed: string[];
+}
+
+/** Thrown for known, user-explainable failures (rate limit, server error). */
+export class ApiError extends Error {
+  constructor(message: string, public status?: number) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
+/**
+ * Ask the agent a question. POSTs to /chat and normalises the response.
+ * Tolerant to field naming: accepts `answer` or `response`, and
+ * `tools_used` or `tools`, so it survives small backend changes.
+ */
+export async function askAgent(question: string): Promise<AgentReply> {
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question }),
+    });
+  } catch {
+    // Network-level failure: backend unreachable (down, CORS, wrong URL)
+    throw new ApiError(
+      "Couldn't reach the agent. It may still be waking up — try again in a few seconds."
+    );
+  }
+
+  if (res.status === 429) {
+    throw new ApiError(
+      "You're sending questions a little too fast. Wait a few seconds and try again.",
+      429
+    );
+  }
+  if (!res.ok) {
+    throw new ApiError(
+      "The agent hit a problem answering that. Try again, or rephrase the question.",
+      res.status
+    );
+  }
+
+  const data = await res.json();
+  return {
+    answer: data.answer ?? data.response ?? "",
+    toolsUsed: data.tools_used ?? data.tools ?? [],
+  };
+}
+
+/**
+ * Liveness check against /health. Returns true if the backend is awake.
+ * Used by the header status pill (and it doubles as a warm-up ping:
+ * calling it on page load starts waking a sleeping Render service
+ * before the visitor even types).
+ */
+export async function checkHealth(): Promise<boolean> {
+  try {
+    const res = await fetch(`${API_URL}/health`, { cache: "no-store" });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
