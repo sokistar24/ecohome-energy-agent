@@ -1,0 +1,37 @@
+Energy storage, mainly home batteries, lets you decouple when you generate or buy energy from when you use it. The core idea is simple: store energy when it is cheap or free, and use it when it would otherwise be expensive. A well-managed battery shaves the costly evening peak off your bill and squeezes more value from rooftop solar.
+
+How Battery Storage Saves Money:
+- Store cheap off-peak or surplus solar energy and use it during expensive peak hours
+- Avoid buying grid electricity at the highest rates by discharging the battery then
+- Reduce or eliminate exporting solar cheaply by keeping that energy for your own evening use
+- Flatten your demand so you draw less power during peak periods that carry demand charges
+
+Charging Strategy:
+- Charge primarily from surplus solar during the day when generation exceeds your usage
+- Top up from cheap off-peak grid power overnight when solar alone is not enough
+- On an agile or time-of-use tariff, charge automatically when the half-hourly price is lowest
+- Avoid charging during peak price periods unless absolutely necessary
+
+Discharging Strategy:
+- Discharge the battery during the expensive evening peak to cover your highest-cost hours
+- Prioritise using stored energy for high-power evening loads like cooking and heating
+- Hold some reserve if you want backup power during an outage
+- Let the battery recharge from solar or off-peak power once the peak has passed
+
+Sizing and Selecting a Battery:
+- Size the battery to cover your typical evening and peak-period usage, not your whole day
+- An oversized battery costs more upfront and may rarely use its full capacity
+- Consider usable capacity and round-trip efficiency, since some energy is lost in storage
+- Match the battery's power rating to the appliances you want it to run at once
+
+Working with Solar and Tariffs:
+- Solar-plus-storage lets you self-consume far more of your generation than solar alone
+- Charge from solar first and only fall back to grid power when generation is insufficient
+- Combine the battery with a time-varying tariff to arbitrage cheap and expensive hours
+- Track how much of your peak usage the battery offsets and tune the schedule over time
+
+Battery Health and Longevity:
+- Avoid routinely draining the battery completely; partial cycles are gentler on it
+- Keep the battery within its recommended temperature range for best lifespan
+- Use the manufacturer's app to monitor performance and state of health
+- Review and update charge and discharge schedules as your usage and tariff change

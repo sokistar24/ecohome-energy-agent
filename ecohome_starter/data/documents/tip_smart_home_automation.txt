@@ -1,0 +1,37 @@
+Smart home automation lets you save energy without thinking about it, by having devices respond automatically to time, price, occupancy, and weather. The biggest wins come from automatically shifting flexible loads to cheap off-peak hours and switching things off when no one is using them. A few well-chosen automations often save more than constant manual effort.
+
+Automated Scheduling:
+- Schedule flexible loads such as the dishwasher, washing machine, and EV charger to run overnight during off-peak pricing
+- Use delay-start timers on appliances so they finish just before you need them
+- Stagger high-power devices so they do not all run at once and trigger demand charges
+- Automate the immersion heater or hot water tank to heat during the cheapest hours only
+
+Occupancy and Presence:
+- Use motion sensors to switch off lights in empty rooms automatically
+- Use geofencing on your phone to turn heating and standby devices off when everyone leaves
+- Set "away" and "sleep" modes that drop heating and switch off non-essential plugs
+- Add presence detection so the home only conditions rooms that are actually occupied
+
+Smart Plugs and Switches:
+- Put smart plugs on devices with standby draw such as TVs, games consoles, and chargers
+- Schedule smart plugs to cut power to these devices overnight to eliminate phantom load
+- Group plugs into scenes so one command powers down a whole room
+- Monitor per-plug energy use to find the hidden devices costing you the most
+
+Price-Responsive Automation:
+- Connect automations to a time-of-use or agile tariff so devices run when electricity is cheapest
+- Trigger EV charging and appliance cycles automatically when the half-hourly price drops below a set threshold
+- Pause or delay high-power loads automatically when prices spike during peak periods
+- Use a home energy management system to coordinate several devices against the price signal
+
+Lighting Automation:
+- Replace bulbs with LEDs and put them on smart switches or dimmers
+- Use daylight sensors so lights only come on when natural light is low
+- Set schedules so outdoor and security lighting runs only between dusk and dawn
+- Dim or zone lighting so only occupied areas are fully lit
+
+Getting Started Simply:
+- Begin with one or two automations such as overnight EV charging and motion-sensor lighting
+- Use a single hub or app so devices work together rather than in isolation
+- Review your automations seasonally as routines and daylight hours change
+- Avoid over-automating; keep manual overrides easy for guests and household members

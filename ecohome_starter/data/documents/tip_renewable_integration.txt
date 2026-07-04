@@ -1,0 +1,37 @@
+Integrating renewable energy, mainly rooftop solar, means using as much of your own generation as possible rather than exporting it cheaply and buying it back expensively. The core strategy is to shift flexible energy use into the hours when your panels are producing, and to store any surplus for later. Good integration can dramatically cut both bills and carbon emissions.
+
+Maximising Solar Self-Consumption:
+- Run high-power appliances during the middle of the day when solar generation peaks
+- Charge your EV during sunny daytime hours to soak up surplus solar directly
+- Heat hot water with a solar diverter that sends excess generation to the immersion heater
+- Pre-cool or pre-heat the home at midday using free solar power, then coast through the evening
+
+Understanding Your Generation:
+- Solar output peaks around midday and is highest on clear, sunny days
+- Cloudy and overcast conditions can cut generation to a fraction of clear-sky output
+- Output is lower in winter and higher in summer due to sun angle and daylight length
+- Check a weather forecast and solar irradiance to predict how much you will generate tomorrow
+
+Timing Loads Around the Sun:
+- Schedule the dishwasher and washing machine for late morning to early afternoon on sunny days
+- Avoid running everything at once; spread loads across the solar window to use more of it directly
+- On forecast cloudy days, fall back to cheap off-peak grid hours instead of midday
+- Use automation to start appliances when generation rises above a set level
+
+Battery Storage with Solar:
+- A home battery stores midday surplus so you can use solar power in the evening peak
+- Charge the battery from solar first, and from cheap off-peak grid power only if needed
+- Discharge the battery during expensive peak hours to avoid buying costly grid electricity
+- Size the battery to your evening usage so it covers the priciest hours
+
+Export, Tariffs, and Payback:
+- Exporting surplus to the grid usually earns far less than the value of using it yourself
+- Self-consuming a unit of solar is worth more than exporting it and buying one back later
+- Some tariffs pay more for export at certain times; shift exports to those windows if so
+- Track self-consumption rate over time and aim to raise it with smarter scheduling
+
+Maintaining Solar Performance:
+- Keep panels reasonably clean as dust and leaves reduce output
+- Check for shading from growing trees or new obstructions that cut generation
+- Monitor the system so you notice quickly if a panel or inverter underperforms
+- Review generation seasonally and adjust your load scheduling to match
