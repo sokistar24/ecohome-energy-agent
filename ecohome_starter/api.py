@@ -196,6 +196,94 @@ def regions():
     }
 
 
+@app.get("/forecast")
+def forecast(region: str = "C"):
+    """
+    Chart data for the sidebar: hourly electricity price and hourly solar
+    irradiance for TODAY and TOMORROW, for the selected region.
+
+    No agent/LLM involved — this calls the pricing tool and a solar helper
+    directly, so it's fast (just the two upstream API calls) and cheap.
+    Region-aware: prices come from the region's Agile tariff, solar from the
+    region's representative city.
+
+    Returns:
+        {
+          "region": "C",
+          "region_label": "London",
+          "days": [
+            {
+              "date": "2026-07-18",
+              "label": "Today",
+              "hours": [
+                {"hour": 0, "price": 0.0868, "period": "off_peak",
+                 "solar_irradiance": 0.0},
+                ...
+              ]
+            },
+            { ... "label": "Tomorrow" ... }
+          ]
+        }
+    """
+    from datetime import datetime, timedelta
+    from tools import (
+        set_active_region, get_electricity_prices, get_solar_by_date,
+        UK_REGIONS,
+    )
+
+    applied = set_active_region(region)
+    label = UK_REGIONS.get(applied, {}).get("label", "London")
+
+    now = datetime.now()
+    day_specs = [
+        (now.strftime("%Y-%m-%d"), "Today"),
+        ((now + timedelta(days=1)).strftime("%Y-%m-%d"), "Tomorrow"),
+    ]
+
+    # One solar fetch covers both days, correctly split by calendar date.
+    solar_by_date = get_solar_by_date(days=2)
+
+    days_out = []
+    for date_str, day_label in day_specs:
+        # Prices for this specific date.
+        try:
+            prices = get_electricity_prices.invoke({"date": date_str})
+        except Exception:
+            prices = {"hourly_rates": []}
+        price_by_hour = {
+            r["hour"]: {"price": r.get("rate"), "period": r.get("period")}
+            for r in prices.get("hourly_rates", [])
+        }
+
+        # Solar for this date (list of {hour, solar_irradiance}).
+        solar_by_hour = {
+            s["hour"]: s.get("solar_irradiance", 0.0)
+            for s in solar_by_date.get(date_str, [])
+        }
+
+        hours = []
+        for hour in range(24):
+            p = price_by_hour.get(hour, {})
+            hours.append({
+                "hour": hour,
+                "price": p.get("price"),
+                "period": p.get("period"),
+                "solar_irradiance": solar_by_hour.get(hour, 0.0),
+            })
+
+        days_out.append({
+            "date": date_str,
+            "label": day_label,
+            "hours": hours,
+        })
+
+    return {
+        "region": applied,
+        "region_label": label,
+        "days": days_out,
+    }
+
+
 @app.post("/chat", response_model=ChatResponse)
 def chat(req: ChatRequest, request: Request):
     if AGENT is None:

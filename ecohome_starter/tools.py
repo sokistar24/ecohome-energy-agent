@@ -125,6 +125,78 @@ def _mock_weather_forecast(location: str, days: int) -> Dict[str, Any]:
     }
 
 
+def get_solar_by_date(days: int = 2, location: str = None) -> Dict[str, list]:
+    """
+    NON-TOOL helper for the sidebar charts. Returns hourly solar irradiance
+    (W/m^2) for the next `days` days, keyed by date string:
+        { "2026-07-18": [ {"hour": 0, "solar_irradiance": 0.0}, ... 24 ],
+          "2026-07-19": [ ... ] }
+
+    Unlike the get_weather_forecast tool (which only exposes day-1 hourly and is
+    what the agent uses), this reads the full multi-day hourly array from
+    Open-Meteo so each calendar day gets its own correct 24-hour solar curve.
+    Falls back to the mock generator's daylight bell curve if the API fails.
+    Uses the active region's representative city when no location is given.
+    """
+    if not location or not str(location).strip():
+        location = get_region_city()
+
+    days = max(1, min(days, 7))
+    coords = _geocode_location(location)
+
+    if coords is not None:
+        lat, lon = coords
+        try:
+            resp = requests.get(
+                "https://api.open-meteo.com/v1/forecast",
+                params={
+                    "latitude": lat,
+                    "longitude": lon,
+                    "hourly": "shortwave_radiation",
+                    "forecast_days": days,
+                    "timezone": "auto",
+                },
+                timeout=10,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            times = data["hourly"]["time"]
+            rad = data["hourly"]["shortwave_radiation"]
+
+            by_date: Dict[str, list] = {}
+            for t, r in zip(times, rad):
+                # "2026-07-18T13:00" -> date "2026-07-18", hour 13
+                date_str = t[:10]
+                hour = int(t[11:13])
+                by_date.setdefault(date_str, []).append({
+                    "hour": hour,
+                    "solar_irradiance": r if r is not None else 0.0,
+                })
+            # Ensure each day is sorted by hour.
+            for d in by_date:
+                by_date[d].sort(key=lambda x: x["hour"])
+            if by_date:
+                return by_date
+        except Exception:
+            pass
+
+    # --- Fallback: mock daylight bell curve per day ------------------------
+    by_date = {}
+    for offset in range(days):
+        day = datetime.now() + timedelta(days=offset)
+        date_str = day.strftime("%Y-%m-%d")
+        hours = []
+        for hour in range(24):
+            if hour < 6 or hour > 18:
+                irr = 0.0
+            else:
+                daylight = 1 - abs(hour - 12) / 6
+                irr = round(700 * daylight, 1)  # clear-ish day, no cloud factor
+            hours.append({"hour": hour, "solar_irradiance": irr})
+        by_date[date_str] = hours
+    return by_date
+
+
 @tool
 def get_weather_forecast(location: str = None, days: int = 3) -> Dict[str, Any]:
     """
