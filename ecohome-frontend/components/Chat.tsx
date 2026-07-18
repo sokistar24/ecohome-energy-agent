@@ -8,6 +8,8 @@
  */
 
 import { useEffect, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { askAgent, checkHealth, ApiError } from "@/lib/api";
 
 // ---------------------------------------------------------------------------
@@ -77,6 +79,87 @@ function ToolChips({ tools }: { tools: string[] }) {
           {tool}
         </span>
       ))}
+    </div>
+  );
+}
+
+// Renders an assistant answer as formatted markdown (headings, bold, lists,
+// tables) styled to match the EcoHome palette. Plain-text agent output still
+// renders fine — markdown just passes it through unchanged.
+function MarkdownMessage({ content }: { content: string }) {
+  return (
+    <div className="text-sm leading-relaxed">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          h1: ({ children }) => (
+            <h1 className="font-display text-lg font-bold text-pine-deep mt-3 mb-1.5 first:mt-0">
+              {children}
+            </h1>
+          ),
+          h2: ({ children }) => (
+            <h2 className="font-display text-base font-bold text-pine-deep mt-3 mb-1.5 first:mt-0">
+              {children}
+            </h2>
+          ),
+          h3: ({ children }) => (
+            <h3 className="font-display text-base font-semibold text-pine-deep mt-3 mb-1 first:mt-0">
+              {children}
+            </h3>
+          ),
+          h4: ({ children }) => (
+            <h4 className="text-sm font-semibold text-pine mt-2.5 mb-1 first:mt-0">
+              {children}
+            </h4>
+          ),
+          p: ({ children }) => (
+            <p className="my-1.5 first:mt-0 last:mb-0">{children}</p>
+          ),
+          ul: ({ children }) => (
+            <ul className="my-1.5 ml-4 list-disc space-y-0.5">{children}</ul>
+          ),
+          ol: ({ children }) => (
+            <ol className="my-1.5 ml-4 list-decimal space-y-0.5">{children}</ol>
+          ),
+          li: ({ children }) => <li className="pl-0.5">{children}</li>,
+          strong: ({ children }) => (
+            <strong className="font-semibold text-ink">{children}</strong>
+          ),
+          em: ({ children }) => <em className="italic">{children}</em>,
+          code: ({ children }) => (
+            <code className="rounded bg-pine/8 px-1 py-0.5 font-mono text-[13px] text-pine">
+              {children}
+            </code>
+          ),
+          a: ({ children, href }) => (
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-pine underline hover:text-pine-deep"
+            >
+              {children}
+            </a>
+          ),
+          table: ({ children }) => (
+            <div className="my-2 overflow-x-auto">
+              <table className="w-full border-collapse text-[13px]">
+                {children}
+              </table>
+            </div>
+          ),
+          th: ({ children }) => (
+            <th className="border border-mist bg-pine/5 px-2 py-1 text-left font-semibold">
+              {children}
+            </th>
+          ),
+          td: ({ children }) => (
+            <td className="border border-mist px-2 py-1">{children}</td>
+          ),
+        }}
+      >
+        {content}
+      </ReactMarkdown>
     </div>
   );
 }
@@ -270,7 +353,11 @@ export default function Chat() {
                     : "border-mist bg-white text-ink"
                 }`}
               >
-                <div className="whitespace-pre-wrap">{msg.content}</div>
+                {msg.isError ? (
+                  <div className="whitespace-pre-wrap">{msg.content}</div>
+                ) : (
+                  <MarkdownMessage content={msg.content} />
+                )}
                 {msg.toolsUsed && <ToolChips tools={msg.toolsUsed} />}
               </div>
             </div>
