@@ -18,6 +18,25 @@ export interface Region {
   label: string;
 }
 
+export interface ForecastHour {
+  hour: number;
+  price: number | null;
+  period: string | null;
+  solar_irradiance: number;
+}
+
+export interface ForecastDay {
+  date: string;
+  label: string; // "Today" | "Tomorrow"
+  hours: ForecastHour[];
+}
+
+export interface Forecast {
+  region: string;
+  region_label: string;
+  days: ForecastDay[];
+}
+
 /** Thrown for known, user-explainable failures (rate limit, server error). */
 export class ApiError extends Error {
   constructor(message: string, public status?: number) {
@@ -104,5 +123,24 @@ export async function fetchRegions(): Promise<{
     };
   } catch {
     return { regions: [{ code: "C", label: "London" }], default: "C" };
+  }
+}
+
+/**
+ * Fetch chart data (hourly price + solar for today and tomorrow) for a region.
+ * Returns null on failure so the sidebar can show an unobtrusive fallback
+ * rather than breaking the page.
+ */
+export async function fetchForecast(
+  region: string = "C"
+): Promise<Forecast | null> {
+  try {
+    const res = await fetch(`${API_URL}/forecast?region=${encodeURIComponent(region)}`, {
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error("bad status");
+    return (await res.json()) as Forecast;
+  } catch {
+    return null;
   }
 }

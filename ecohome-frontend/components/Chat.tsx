@@ -11,6 +11,7 @@ import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { askAgent, checkHealth, fetchRegions, ApiError, type Region } from "@/lib/api";
+import ForecastSidebar from "./ForecastSidebar";
 
 // ---------------------------------------------------------------------------
 // Types & constants
@@ -357,8 +358,10 @@ export default function Chat() {
         </div>
       </header>
 
-      {/* ------------------------------------------------ Messages */}
-      <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-4 px-4 py-6">
+      {/* ------------------------------------------------ Body: chat + sidebar */}
+      <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 px-4 py-6 lg:flex-row lg:items-start">
+        {/* Messages */}
+        <main className="flex w-full max-w-3xl flex-1 flex-col gap-4">
         {isEmpty && (
           <div className="my-auto flex flex-col items-center gap-6 py-10 text-center">
             <div>
@@ -417,7 +420,11 @@ export default function Chat() {
 
         {isLoading && <TypingIndicator coldStart={coldStartHint} />}
         <div ref={bottomRef} />
-      </main>
+        </main>
+
+        {/* Forecast sidebar: charts for the selected region */}
+        <ForecastSidebar region={region} />
+      </div>
 
       {/* ------------------------------------------------ Input */}
       <footer className="sticky bottom-0 border-t border-mist bg-paper/95 backdrop-blur">
