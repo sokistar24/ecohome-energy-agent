@@ -10,7 +10,7 @@
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { askAgent, checkHealth, ApiError } from "@/lib/api";
+import { askAgent, checkHealth, fetchRegions, ApiError, type Region } from "@/lib/api";
 
 // ---------------------------------------------------------------------------
 // Types & constants
@@ -61,6 +61,37 @@ function StatusPill({ status }: { status: AgentStatus }) {
       />
       {config.label}
     </span>
+  );
+}
+
+function RegionSelector({
+  regions,
+  value,
+  onChange,
+}: {
+  regions: Region[];
+  value: string;
+  onChange: (code: string) => void;
+}) {
+  if (!regions.length) return null;
+  return (
+    <label className="inline-flex items-center gap-1.5">
+      <span className="hidden text-xs font-medium text-ink/55 sm:inline">
+        Region
+      </span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        aria-label="Select your UK region"
+        className="rounded-full border border-mist bg-white px-3 py-1 text-xs font-medium text-ink/80 shadow-sm transition-colors hover:border-pine/40 focus:border-pine/50 focus:outline-none"
+      >
+        {regions.map((r) => (
+          <option key={r.code} value={r.code}>
+            {r.label}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }
 
@@ -195,6 +226,8 @@ export default function Chat() {
   const [isLoading, setIsLoading] = useState(false);
   const [coldStartHint, setColdStartHint] = useState(false);
   const [status, setStatus] = useState<AgentStatus>("checking");
+  const [regions, setRegions] = useState<Region[]>([]);
+  const [region, setRegion] = useState("C"); // default London
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -225,6 +258,19 @@ export default function Chat() {
     };
   }, []);
 
+  // --- Load the region list once on mount ----------------------------------
+  useEffect(() => {
+    let cancelled = false;
+    fetchRegions().then(({ regions, default: def }) => {
+      if (cancelled) return;
+      setRegions(regions);
+      setRegion((current) => current || def);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // --- Auto-scroll to the newest message -----------------------------------
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -247,7 +293,7 @@ export default function Chat() {
     );
 
     try {
-      const reply = await askAgent(trimmed);
+      const reply = await askAgent(trimmed, region);
       setMessages((prev) => [
         ...prev,
         {
@@ -301,6 +347,11 @@ export default function Chat() {
             <span className="hidden rounded-full bg-solar/15 px-3 py-1 text-xs font-medium text-ink/70 sm:inline">
               Portfolio demo · sample household data
             </span>
+            <RegionSelector
+              regions={regions}
+              value={region}
+              onChange={setRegion}
+            />
             <StatusPill status={status} />
           </div>
         </div>

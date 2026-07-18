@@ -13,6 +13,11 @@ export interface AgentReply {
   toolsUsed: string[];
 }
 
+export interface Region {
+  code: string;
+  label: string;
+}
+
 /** Thrown for known, user-explainable failures (rate limit, server error). */
 export class ApiError extends Error {
   constructor(message: string, public status?: number) {
@@ -25,14 +30,18 @@ export class ApiError extends Error {
  * Ask the agent a question. POSTs to /chat and normalises the response.
  * Tolerant to field naming: accepts `answer` or `response`, and
  * `tools_used` or `tools`, so it survives small backend changes.
+ * `region` is the UK GSP region code (A-P); defaults to "C" (London).
  */
-export async function askAgent(question: string): Promise<AgentReply> {
+export async function askAgent(
+  question: string,
+  region: string = "C"
+): Promise<AgentReply> {
   let res: Response;
   try {
     res = await fetch(`${API_URL}/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question }),
+      body: JSON.stringify({ question, region }),
     });
   } catch {
     // Network-level failure: backend unreachable (down, CORS, wrong URL)
@@ -73,5 +82,27 @@ export async function checkHealth(): Promise<boolean> {
     return res.ok;
   } catch {
     return false;
+  }
+}
+
+/**
+ * Fetch the list of selectable UK regions for the dropdown. Returns the
+ * regions and the default code. Falls back to just London if the backend
+ * is unreachable, so the UI always has at least one valid option.
+ */
+export async function fetchRegions(): Promise<{
+  regions: Region[];
+  default: string;
+}> {
+  try {
+    const res = await fetch(`${API_URL}/regions`, { cache: "no-store" });
+    if (!res.ok) throw new Error("bad status");
+    const data = await res.json();
+    return {
+      regions: data.regions ?? [{ code: "C", label: "London" }],
+      default: data.default ?? "C",
+    };
+  } catch {
+    return { regions: [{ code: "C", label: "London" }], default: "C" };
   }
 }
