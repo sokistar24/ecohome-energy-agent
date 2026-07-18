@@ -163,6 +163,8 @@ def check_rate_limit(ip: str):
 class ChatRequest(BaseModel):
     question: str = Field(..., min_length=1, max_length=MAX_QUESTION_CHARS)
     context: str = Field(default="Location: London, UK", max_length=200)
+    # UK GSP region code (A-P). Defaults to C (London) if omitted or invalid.
+    region: str = Field(default="C", max_length=2)
 
 
 class ChatResponse(BaseModel):
@@ -178,6 +180,22 @@ def health():
     return {"status": "ok", "agent_ready": AGENT is not None}
 
 
+@app.get("/regions")
+def regions():
+    """
+    The list of selectable UK regions for the frontend dropdown.
+    Single source of truth: derived from the backend's region table.
+    """
+    from tools import UK_REGIONS, _DEFAULT_REGION
+    return {
+        "default": _DEFAULT_REGION,
+        "regions": [
+            {"code": code, "label": info["label"]}
+            for code, info in UK_REGIONS.items()
+        ],
+    }
+
+
 @app.post("/chat", response_model=ChatResponse)
 def chat(req: ChatRequest, request: Request):
     if AGENT is None:
@@ -185,6 +203,12 @@ def chat(req: ChatRequest, request: Request):
 
     ip = request.client.host if request.client else "unknown"
     check_rate_limit(ip)
+
+    # Apply the user's selected region for this request. The pricing and weather
+    # tools read this; it falls back to London (C) if the code is missing/invalid.
+    from tools import set_active_region, UK_REGIONS
+    applied_region = set_active_region(req.region)
+    region_label = UK_REGIONS.get(applied_region, {}).get("label", "London")
 
     # Stamp the real current date into the context so the agent never has to
     # guess it. "tomorrow", "tonight", "this week" etc. are resolved relative
@@ -197,7 +221,13 @@ def chat(req: ChatRequest, request: Request):
         f"Resolve any relative dates against these actual dates, and pass the "
         f"correct YYYY-MM-DD to any tool that takes a date."
     )
-    full_context = f"{req.context}\n{date_context}" if req.context else date_context
+    region_context = (
+        f"The customer's region is {region_label} (GSP region {applied_region}). "
+        f"Electricity prices and the solar/weather forecast are already set to "
+        f"this region — you do not need to specify a location for weather."
+    )
+    base_context = req.context or ""
+    full_context = f"{base_context}\n{date_context}\n{region_context}".strip()
 
     try:
         response = AGENT.invoke(question=req.question, context=full_context)

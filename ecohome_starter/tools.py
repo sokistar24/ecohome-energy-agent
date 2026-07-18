@@ -126,70 +126,16 @@ def _mock_weather_forecast(location: str, days: int) -> Dict[str, Any]:
 
 
 @tool
-def get_current_date() -> Dict[str, Any]:
-    """
-    Get the real current date, plus a labelled calendar of the next two weeks.
-
-    Call this FIRST whenever a question involves ANY relative or named date —
-    "today", "tonight", "tomorrow", "the day after tomorrow", "this Friday",
-    "next Monday", "in 3 days", "a week from now", "this weekend", etc. Do NOT
-    guess or compute dates from memory; read the answer off the "calendar"
-    list this tool returns.
-
-    How to use the result:
-      - For a relative day, find the entry whose "days_from_now" matches
-        (0 = today, 1 = tomorrow, 2 = day after tomorrow, 7 = a week from now).
-      - For a named weekday ("this Friday", "next Monday"), find the nearest
-        upcoming entry whose "weekday" matches.
-      - Then pass that entry's "date" (YYYY-MM-DD) to any tool that takes a date
-        (get_electricity_prices, get_weather_forecast, query_energy_usage, ...).
-      - If a question refers to a date beyond this 14-day window, use "today"
-        as the anchor and count forward from it.
-
-    Returns:
-        Dict[str, Any]: The current date and a 14-day labelled calendar.
-        E.g:
-        {
-            "today": "2026-07-18",
-            "tomorrow": "2026-07-19",
-            "weekday": "Saturday",
-            "iso_datetime": "2026-07-18T14:30:00",
-            "calendar": [
-                {"days_from_now": 0, "date": "2026-07-18", "weekday": "Saturday"},
-                {"days_from_now": 1, "date": "2026-07-19", "weekday": "Sunday"},
-                ...
-                {"days_from_now": 13, "date": "2026-07-31", "weekday": "Friday"}
-            ]
-        }
-    """
-    now = datetime.now()
-    calendar = []
-    for offset in range(14):
-        day = now + timedelta(days=offset)
-        calendar.append({
-            "days_from_now": offset,
-            "date": day.strftime("%Y-%m-%d"),
-            "weekday": day.strftime("%A"),
-        })
-
-    return {
-        "today": now.strftime("%Y-%m-%d"),
-        "tomorrow": (now + timedelta(days=1)).strftime("%Y-%m-%d"),
-        "weekday": now.strftime("%A"),
-        "iso_datetime": now.replace(microsecond=0).isoformat(),
-        "calendar": calendar,
-    }
-
-
-@tool
-def get_weather_forecast(location: str, days: int = 3) -> Dict[str, Any]:
+def get_weather_forecast(location: str = None, days: int = 3) -> Dict[str, Any]:
     """
     Get weather forecast for a specific location and number of days.
-    
+
     Args:
-        location (str): Location to get weather for (e.g., "San Francisco, CA")
+        location (str): Location to get weather for (e.g., "London"). If omitted,
+            the customer's selected region is used automatically, so you normally
+            do NOT need to pass this — just call get_weather_forecast(days=...).
         days (int): Number of days to forecast (1-7)
-    
+
     Returns:
         Dict[str, Any]: Weather forecast data including temperature, conditions, and solar irradiance
         E.g:
@@ -214,6 +160,10 @@ def get_weather_forecast(location: str, days: int = 3) -> Dict[str, Any]:
             ]
         }
     """
+    # Default to the customer's selected region's representative city.
+    if not location or not str(location).strip():
+        location = get_region_city()
+
     # Clamp days to the documented 1-7 range.
     days = max(1, min(days, 7))
 
@@ -321,11 +271,61 @@ def get_electricity_prices(date: str = None) -> Dict[str, Any]:
 # Helpers for the pricing tool: real Octopus Agile API + mock fallback.
 # ---------------------------------------------------------------------------
 
-# Current Agile product and region. Region "C" = London / South East.
-# These public endpoints need no authentication.
+# Current Agile product. Public endpoints, no authentication needed.
 _AGILE_PRODUCT = "AGILE-FLEX-22-11-25"
-_AGILE_REGION = "C"
-_AGILE_TARIFF = f"E-1R-{_AGILE_PRODUCT}-{_AGILE_REGION}"
+
+# The 14 UK GSP / DNO regions (A-P, the letter I is skipped). Each maps to a
+# human label for the dropdown and a representative city used for the weather /
+# solar forecast, since the weather tool geocodes by place name. Prices are
+# exact per region; weather is representative for the region.
+UK_REGIONS = {
+    "A": {"label": "East England",                 "city": "Ipswich"},
+    "B": {"label": "East Midlands",                "city": "Nottingham"},
+    "C": {"label": "London",                       "city": "London"},
+    "D": {"label": "North Wales & Merseyside",     "city": "Liverpool"},
+    "E": {"label": "West Midlands",                "city": "Birmingham"},
+    "F": {"label": "North East England",           "city": "Newcastle upon Tyne"},
+    "G": {"label": "North West England",           "city": "Manchester"},
+    "H": {"label": "Southern England",             "city": "Southampton"},
+    "J": {"label": "South East England",           "city": "Maidstone"},
+    "K": {"label": "South Wales",                  "city": "Cardiff"},
+    "L": {"label": "South West England",           "city": "Bristol"},
+    "M": {"label": "Yorkshire",                    "city": "Leeds"},
+    "N": {"label": "Southern Scotland",            "city": "Glasgow"},
+    "P": {"label": "Northern Scotland",            "city": "Inverness"},
+}
+
+# Default region if none is selected: London (C), matching the previous behaviour.
+_DEFAULT_REGION = "C"
+
+# Request-scoped active region. The API sets this per request from the user's
+# dropdown choice; the pricing/weather tools read it. It is deliberately NOT a
+# model-supplied tool argument — the region is a user setting, not something the
+# LLM should reason about or pass around.
+_active_region = _DEFAULT_REGION
+
+
+def set_active_region(region: str) -> str:
+    """
+    Set the region used by the pricing and weather tools for the current request.
+    Falls back to the default (London/C) if the code isn't a valid GSP region.
+    Returns the region actually applied.
+    """
+    global _active_region
+    region = (region or "").strip().upper()
+    _active_region = region if region in UK_REGIONS else _DEFAULT_REGION
+    return _active_region
+
+
+def get_active_region() -> str:
+    """Return the region code currently in effect for pricing/weather."""
+    return _active_region
+
+
+def get_region_city(region: str = None) -> str:
+    """Representative city name for the given (or active) region, for weather."""
+    code = (region or _active_region)
+    return UK_REGIONS.get(code, UK_REGIONS[_DEFAULT_REGION])["city"]
 
 
 def _classify_period_by_rate(rate: float, low: float, high: float) -> str:
@@ -351,15 +351,19 @@ def _fetch_agile_prices(date: str):
     Fetch real half-hourly Agile prices for the given date and collapse them
     into 24 hourly slots matching our docstring contract.
     Returns a prices dict on success, or None on any failure (caller falls back).
+    Uses the request's active region (set via set_active_region).
     """
     try:
+        region = get_active_region()
+        tariff = f"E-1R-{_AGILE_PRODUCT}-{region}"
+
         # Build a UTC day window [date 00:00, next day 00:00).
         day = datetime.strptime(date, "%Y-%m-%d")
         period_from = day.strftime("%Y-%m-%dT00:00:00Z")
         period_to = (day + timedelta(days=1)).strftime("%Y-%m-%dT00:00:00Z")
 
         url = (f"https://api.octopus.energy/v1/products/{_AGILE_PRODUCT}"
-               f"/electricity-tariffs/{_AGILE_TARIFF}/standard-unit-rates/")
+               f"/electricity-tariffs/{tariff}/standard-unit-rates/")
         resp = requests.get(
             url,
             params={"period_from": period_from, "period_to": period_to,
@@ -408,7 +412,8 @@ def _fetch_agile_prices(date: str):
             "currency": "GBP",          # Agile prices are in pounds, not USD
             "unit": "per_kWh",
             "data_source": "octopus-agile",
-            "region": _AGILE_REGION,
+            "region": get_active_region(),
+            "region_label": UK_REGIONS.get(get_active_region(), {}).get("label"),
             "hourly_rates": hourly_rates,
         }
     except Exception:
@@ -693,7 +698,6 @@ def calculate_energy_savings(device_type: str, current_usage_kwh: float,
 
 
 TOOL_KIT = [
-    get_current_date,
     get_weather_forecast,
     get_electricity_prices,
     query_energy_usage,
