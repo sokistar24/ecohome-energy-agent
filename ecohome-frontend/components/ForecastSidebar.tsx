@@ -90,24 +90,24 @@ function PriceChart({ day }: { day: ForecastDay }) {
         </h3>
         <span className="text-[11px] text-ink/45">£/kWh</span>
       </div>
-      <ResponsiveContainer width="100%" height={130}>
+      <ResponsiveContainer width="100%" height={200}>
         <BarChart
           data={day.hours}
-          margin={{ top: 4, right: 4, bottom: 0, left: -18 }}
+          margin={{ top: 4, right: 4, bottom: 0, left: 4 }}
         >
           <XAxis
             dataKey="hour"
-            ticks={[0, 6, 12, 18]}
+            ticks={[0, 3, 6, 9, 12, 15, 18, 21]}
             tickFormatter={(h) => formatHour(h)}
-            tick={{ fontSize: 10, fill: C.ink }}
+            tick={{ fontSize: 11, fill: C.ink }}
             tickLine={false}
             axisLine={{ stroke: C.mist }}
           />
           <YAxis
-            tick={{ fontSize: 10, fill: C.ink }}
+            tick={{ fontSize: 11, fill: C.ink }}
             tickLine={false}
             axisLine={false}
-            width={38}
+            width={52}
             tickFormatter={(v) => `£${v.toFixed(2)}`}
           />
           <Tooltip content={<PriceTooltip />} cursor={{ fill: "rgba(0,0,0,0.04)" }} />
@@ -145,10 +145,10 @@ function SolarChart({ day }: { day: ForecastDay }) {
         </h3>
         <span className="text-[11px] text-ink/45">W/m²</span>
       </div>
-      <ResponsiveContainer width="100%" height={130}>
+      <ResponsiveContainer width="100%" height={200}>
         <AreaChart
           data={day.hours}
-          margin={{ top: 4, right: 4, bottom: 0, left: -18 }}
+          margin={{ top: 4, right: 4, bottom: 0, left: 4 }}
         >
           <defs>
             <linearGradient id="solarFill" x1="0" y1="0" x2="0" y2="1">
@@ -158,17 +158,18 @@ function SolarChart({ day }: { day: ForecastDay }) {
           </defs>
           <XAxis
             dataKey="hour"
-            ticks={[0, 6, 12, 18]}
+            ticks={[0, 3, 6, 9, 12, 15, 18, 21]}
             tickFormatter={(h) => formatHour(h)}
-            tick={{ fontSize: 10, fill: C.ink }}
+            tick={{ fontSize: 11, fill: C.ink }}
             tickLine={false}
             axisLine={{ stroke: C.mist }}
           />
           <YAxis
-            tick={{ fontSize: 10, fill: C.ink }}
+            tick={{ fontSize: 11, fill: C.ink }}
             tickLine={false}
             axisLine={false}
-            width={38}
+            width={40}
+            tickFormatter={(v) => `${Math.round(v)}`}
           />
           <Tooltip content={<SolarTooltip />} cursor={{ stroke: C.mist }} />
           <Area
@@ -209,7 +210,7 @@ export default function ForecastSidebar({ region }: { region: string }) {
   const day = days[dayIndex] ?? days[0];
 
   return (
-    <aside className="w-full lg:w-72 lg:flex-shrink-0">
+    <aside className="w-full lg:w-[26rem] lg:flex-shrink-0">
       <div className="rounded-2xl border border-mist bg-white/70 p-3 shadow-sm">
         {/* header row: title + collapse toggle */}
         <div className="flex items-center justify-between">
