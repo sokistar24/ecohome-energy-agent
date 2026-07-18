@@ -186,8 +186,21 @@ def chat(req: ChatRequest, request: Request):
     ip = request.client.host if request.client else "unknown"
     check_rate_limit(ip)
 
+    # Stamp the real current date into the context so the agent never has to
+    # guess it. "tomorrow", "tonight", "this week" etc. are resolved relative
+    # to these actual dates instead of being invented by the model.
+    from datetime import datetime, timedelta
+    now = datetime.now()
+    date_context = (
+        f"Today's date is {now:%A, %Y-%m-%d}. "
+        f"Tomorrow is {now + timedelta(days=1):%A, %Y-%m-%d}. "
+        f"Resolve any relative dates against these actual dates, and pass the "
+        f"correct YYYY-MM-DD to any tool that takes a date."
+    )
+    full_context = f"{req.context}\n{date_context}" if req.context else date_context
+
     try:
-        response = AGENT.invoke(question=req.question, context=req.context)
+        response = AGENT.invoke(question=req.question, context=full_context)
         msgs = response.get("messages", [])
         answer = msgs[-1].content if msgs else ""
 
