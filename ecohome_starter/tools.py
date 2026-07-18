@@ -126,6 +126,62 @@ def _mock_weather_forecast(location: str, days: int) -> Dict[str, Any]:
 
 
 @tool
+def get_current_date() -> Dict[str, Any]:
+    """
+    Get the real current date, plus a labelled calendar of the next two weeks.
+
+    Call this FIRST whenever a question involves ANY relative or named date —
+    "today", "tonight", "tomorrow", "the day after tomorrow", "this Friday",
+    "next Monday", "in 3 days", "a week from now", "this weekend", etc. Do NOT
+    guess or compute dates from memory; read the answer off the "calendar"
+    list this tool returns.
+
+    How to use the result:
+      - For a relative day, find the entry whose "days_from_now" matches
+        (0 = today, 1 = tomorrow, 2 = day after tomorrow, 7 = a week from now).
+      - For a named weekday ("this Friday", "next Monday"), find the nearest
+        upcoming entry whose "weekday" matches.
+      - Then pass that entry's "date" (YYYY-MM-DD) to any tool that takes a date
+        (get_electricity_prices, get_weather_forecast, query_energy_usage, ...).
+      - If a question refers to a date beyond this 14-day window, use "today"
+        as the anchor and count forward from it.
+
+    Returns:
+        Dict[str, Any]: The current date and a 14-day labelled calendar.
+        E.g:
+        {
+            "today": "2026-07-18",
+            "tomorrow": "2026-07-19",
+            "weekday": "Saturday",
+            "iso_datetime": "2026-07-18T14:30:00",
+            "calendar": [
+                {"days_from_now": 0, "date": "2026-07-18", "weekday": "Saturday"},
+                {"days_from_now": 1, "date": "2026-07-19", "weekday": "Sunday"},
+                ...
+                {"days_from_now": 13, "date": "2026-07-31", "weekday": "Friday"}
+            ]
+        }
+    """
+    now = datetime.now()
+    calendar = []
+    for offset in range(14):
+        day = now + timedelta(days=offset)
+        calendar.append({
+            "days_from_now": offset,
+            "date": day.strftime("%Y-%m-%d"),
+            "weekday": day.strftime("%A"),
+        })
+
+    return {
+        "today": now.strftime("%Y-%m-%d"),
+        "tomorrow": (now + timedelta(days=1)).strftime("%Y-%m-%d"),
+        "weekday": now.strftime("%A"),
+        "iso_datetime": now.replace(microsecond=0).isoformat(),
+        "calendar": calendar,
+    }
+
+
+@tool
 def get_weather_forecast(location: str, days: int = 3) -> Dict[str, Any]:
     """
     Get weather forecast for a specific location and number of days.
@@ -637,6 +693,7 @@ def calculate_energy_savings(device_type: str, current_usage_kwh: float,
 
 
 TOOL_KIT = [
+    get_current_date,
     get_weather_forecast,
     get_electricity_prices,
     query_energy_usage,
