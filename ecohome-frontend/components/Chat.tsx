@@ -8,6 +8,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { askAgent, checkHealth, fetchRegions, ApiError, type Region } from "@/lib/api";
@@ -348,6 +349,12 @@ export default function Chat() {
             <span className="hidden rounded-full bg-solar/15 px-3 py-1 text-xs font-medium text-ink/70 sm:inline">
               Portfolio demo · sample household data
             </span>
+            <Link
+              href="/about"
+              className="rounded-full border border-mist bg-white px-3 py-1 text-xs font-medium text-ink/70 transition-colors hover:border-pine/40 hover:text-pine"
+            >
+              About
+            </Link>
             <RegionSelector
               regions={regions}
               value={region}
