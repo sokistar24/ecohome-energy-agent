@@ -29,7 +29,7 @@ type AgentStatus = "checking" | "waking" | "online" | "offline";
 const SUGGESTED_QUESTIONS = [
   "When should I charge my EV tomorrow to minimise cost and maximise solar?",
   "What thermostat setting saves the most during this week's price peaks?",
-  "Suggest three ways to cut my energy use based on my usage history.",
+  "When should I run the washing machine this week to avoid peak prices?",
   "How much can I save running the dishwasher off-peak?",
 ];
 
@@ -359,9 +359,9 @@ export default function Chat() {
       </header>
 
       {/* ------------------------------------------------ Body: chat + sidebar */}
-      <div className="mx-auto flex w-full max-w-[90rem] flex-1 flex-col gap-6 px-4 py-6 lg:flex-row lg:items-start lg:justify-between lg:gap-8">
+      <div className="mx-auto flex w-full max-w-[82rem] flex-1 flex-col gap-6 px-6 py-6 lg:flex-row lg:items-start lg:justify-between lg:gap-16">
         {/* Messages */}
-        <main className="flex w-full flex-1 flex-col gap-4 lg:max-w-3xl">
+        <main className="flex w-full flex-1 flex-col gap-4 lg:max-w-2xl">
         {isEmpty && (
           <div className="my-auto flex flex-col items-center gap-6 py-10 text-center">
             <div>
@@ -369,9 +369,9 @@ export default function Chat() {
                 Ask the Energy Advisor
               </h1>
               <p className="mx-auto mt-3 max-w-md text-ink/60">
-                An AI agent that checks electricity prices, weather forecasts
-                and household usage data to answer questions about running a
-                smart home cheaply.
+                An AI agent that checks live electricity prices and solar
+                forecasts to tell you the cheapest, greenest times to run your
+                home.
               </p>
             </div>
             <div className="grid w-full gap-2 sm:grid-cols-2">
@@ -428,8 +428,8 @@ export default function Chat() {
 
       {/* ------------------------------------------------ Input */}
       <footer className="sticky bottom-0 border-t border-mist bg-paper/95 backdrop-blur">
-        <div className="mx-auto w-full max-w-[90rem] px-4 py-3">
-          <div className="w-full lg:max-w-3xl">
+        <div className="mx-auto w-full max-w-[82rem] px-6 py-3">
+          <div className="w-full lg:max-w-2xl">
           <div className="flex items-end gap-2 rounded-2xl border border-mist bg-white p-2 shadow-sm focus-within:border-pine/40">
             <textarea
               ref={inputRef}
