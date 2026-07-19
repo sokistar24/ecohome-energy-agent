@@ -90,7 +90,7 @@ function PriceChart({ day }: { day: ForecastDay }) {
         </h3>
         <span className="text-[11px] text-ink/45">£/kWh</span>
       </div>
-      <ResponsiveContainer width="100%" height={200}>
+      <ResponsiveContainer width="100%" height={165}>
         <BarChart
           data={day.hours}
           margin={{ top: 4, right: 4, bottom: 0, left: 4 }}
@@ -145,7 +145,7 @@ function SolarChart({ day }: { day: ForecastDay }) {
         </h3>
         <span className="text-[11px] text-ink/45">W/m²</span>
       </div>
-      <ResponsiveContainer width="100%" height={200}>
+      <ResponsiveContainer width="100%" height={165}>
         <AreaChart
           data={day.hours}
           margin={{ top: 4, right: 4, bottom: 0, left: 4 }}
