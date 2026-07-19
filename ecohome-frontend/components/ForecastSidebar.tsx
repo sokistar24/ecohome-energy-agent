@@ -90,7 +90,7 @@ function PriceChart({ day }: { day: ForecastDay }) {
         </h3>
         <span className="text-[11px] text-ink/45">£/kWh</span>
       </div>
-      <ResponsiveContainer width="100%" height={165}>
+      <ResponsiveContainer width="100%" height={125}>
         <BarChart
           data={day.hours}
           margin={{ top: 4, right: 4, bottom: 0, left: 4 }}
@@ -145,7 +145,7 @@ function SolarChart({ day }: { day: ForecastDay }) {
         </h3>
         <span className="text-[11px] text-ink/45">W/m²</span>
       </div>
-      <ResponsiveContainer width="100%" height={165}>
+      <ResponsiveContainer width="100%" height={125}>
         <AreaChart
           data={day.hours}
           margin={{ top: 4, right: 4, bottom: 0, left: 4 }}
@@ -234,10 +234,10 @@ export default function ForecastSidebar({ region }: { region: string }) {
         </div>
 
         {open && (
-          <div className="mt-3">
+          <div className="mt-2">
             {/* Today / Tomorrow toggle */}
             {days.length > 1 && (
-              <div className="mb-3 inline-flex rounded-lg border border-mist bg-paper/60 p-0.5 text-xs">
+              <div className="mb-2 inline-flex rounded-lg border border-mist bg-paper/60 p-0.5 text-xs">
                 {days.map((d, i) => (
                   <button
                     key={d.date}
@@ -264,7 +264,7 @@ export default function ForecastSidebar({ region }: { region: string }) {
                 here once the agent is reachable.
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-2">
                 <PriceChart day={day} />
                 <SolarChart day={day} />
                 <p className="text-[10px] leading-relaxed text-ink/40">
