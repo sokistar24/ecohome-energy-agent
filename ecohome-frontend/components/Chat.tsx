@@ -346,21 +346,18 @@ export default function Chat() {
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="hidden rounded-full bg-solar/15 px-3 py-1 text-xs font-medium text-ink/70 sm:inline">
-              Portfolio demo · sample household data
-            </span>
-            <Link
-              href="/about"
-              className="rounded-full border border-mist bg-white px-3 py-1 text-xs font-medium text-ink/70 transition-colors hover:border-pine/40 hover:text-pine"
-            >
-              About
-            </Link>
             <RegionSelector
               regions={regions}
               value={region}
               onChange={setRegion}
             />
             <StatusPill status={status} />
+            <Link
+              href="/about"
+              className="rounded-full border border-mist bg-white px-3 py-1 text-xs font-medium text-ink/70 transition-colors hover:border-pine/40 hover:text-pine"
+            >
+              About
+            </Link>
           </div>
         </div>
       </header>
