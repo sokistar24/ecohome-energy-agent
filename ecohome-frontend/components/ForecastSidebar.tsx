@@ -210,7 +210,7 @@ export default function ForecastSidebar({ region }: { region: string }) {
   const day = days[dayIndex] ?? days[0];
 
   return (
-    <aside className="w-full lg:w-[26rem] lg:flex-shrink-0">
+    <aside className="w-full lg:w-[30rem] lg:flex-shrink-0">
       <div className="rounded-2xl border border-mist bg-white/70 p-3 shadow-sm">
         {/* header row: title + collapse toggle */}
         <div className="flex items-center justify-between">
