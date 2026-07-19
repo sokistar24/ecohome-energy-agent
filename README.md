@@ -1,6 +1,6 @@
 # ⚡ EcoHome Energy Agent
 
-**Live at [ecohomeagent.com](https://www.ecohomeagent.com)**
+**Live at [ecohomeagent.com](https://www.ecohomeagent.com)** · **Paper: [arXiv:2607.04569](https://arxiv.org/abs/2607.04569)**
 
 An AI agent that tells you **when to run your home devices** — your EV, dishwasher,
 heating, pool pump — to **minimise electricity costs** and **make the most of your
@@ -234,6 +234,17 @@ Real issues encountered setting up on **Windows + Anaconda**, with fixes:
 (LLM + embeddings) · **FastAPI** · **Next.js** + **Tailwind** · **SQLAlchemy** +
 **SQLite** · **Render** + **Vercel** + **Namecheap** (deployment) · **Streamlit** ·
 **matplotlib**
+
+---
+
+## Further reading
+
+The design of this project — a tool-calling ReAct agent over live Octopus Agile
+prices, weather/solar forecasts, household usage, and a RAG knowledge base — closely
+mirrors the setup studied in the following paper, which benchmarks GPT-4o-mini,
+Gemini 2.5 Flash, and Claude Sonnet 4.6 on multi-appliance home energy scheduling:
+
+- Jonah, S. (2026). *LLMs for Agentic Home Energy Management.* arXiv preprint [arXiv:2607.04569](https://arxiv.org/abs/2607.04569).
 
 ---
 
